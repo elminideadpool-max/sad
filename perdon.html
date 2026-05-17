@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Perdón</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@300;400;600&family=Great+Vibes&display=swap');
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #000;
+    color: #fff;
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+    font-family: 'Inter', sans-serif;
+    cursor: default;
+    user-select: none;
+  }
+
+  /* ── CANVAS PARTICLES ── */
+  #particles { position: fixed; inset: 0; z-index: 0; }
+
+  /* ── SCENES ── */
+  .scene {
+    position: fixed; inset: 0; z-index: 1;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 1.8s cubic-bezier(.4,0,.2,1);
+  }
+  .scene.active { opacity: 1; pointer-events: auto; }
+
+  /* ── SCENE 1 — INTRO ── */
+  #scene1 .vignette {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,.85) 100%);
+    z-index: 1;
+  }
+  #scene1 .glow-ring {
+    width: 320px; height: 320px;
+    border-radius: 50%;
+    border: 2px solid rgba(180, 140, 255, .25);
+    box-shadow: 0 0 80px rgba(180,140,255,.15), inset 0 0 60px rgba(180,140,255,.08);
+    display: flex; align-items: center; justify-content: center;
+    animation: pulse-ring 4s ease-in-out infinite;
+    z-index: 2;
+    position: relative;
+  }
+  @keyframes pulse-ring {
+    0%, 100% { transform: scale(1); border-color: rgba(180,140,255,.25); }
+    50% { transform: scale(1.06); border-color: rgba(180,140,255,.45); }
+  }
+  #scene1 .intro-text {
+    font-family: 'Great Vibes', cursive;
+    font-size: 4rem;
+    background: linear-gradient(135deg, #ffd89b, #ff9a56, #ffcc80);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 30px rgba(180,140,255,.4));
+    animation: text-breathe 3s ease-in-out infinite;
+  }
+  @keyframes text-breathe {
+    0%, 100% { filter: drop-shadow(0 0 30px rgba(255,160,80,.4)); }
+    50% { filter: drop-shadow(0 0 50px rgba(255,160,80,.7)); }
+  }
+
+  /* ── SCENE 2 — SHATTER ── */
+  #scene2 .shatter-container {
+    position: relative; z-index: 2;
+    display: flex; flex-direction: column; align-items: center; gap: 30px;
+  }
+  #scene2 .heart-broken {
+    font-size: 8rem;
+    line-height: 1;
+    animation: heart-crack 2s ease-in-out infinite;
+    filter: drop-shadow(0 0 40px rgba(255,80,100,.5));
+  }
+  @keyframes heart-crack {
+    0%, 100% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 40px rgba(255,80,100,.5)); }
+    25% { transform: scale(1.1) rotate(-2deg); }
+    50% { transform: scale(.95) rotate(1deg); filter: drop-shadow(0 0 60px rgba(255,80,100,.8)); }
+    75% { transform: scale(1.05) rotate(-1deg); }
+  }
+  #scene2 .msg {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    font-weight: 700;
+    text-align: center;
+    max-width: 700px;
+    line-height: 1.5;
+    opacity: 0;
+    animation: fade-up 1.5s ease forwards;
+    animation-delay: .8s;
+  }
+  #scene2 .msg span {
+    background: linear-gradient(90deg, #ff6b6b, #ffa07a, #ff6b6b);
+    background-size: 200% auto;
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradient-shift 3s linear infinite;
+  }
+  @keyframes gradient-shift {
+    0% { background-position: 0% center; }
+    100% { background-position: 200% center; }
+  }
+
+  /* ── SCENE 3 — RAIN OF MEMORIES ── */
+  #scene3 .rain-text-wrap {
+    position: relative; z-index: 2;
+    text-align: center;
+    display: flex; flex-direction: column; align-items: center; gap: 24px;
+  }
+  #scene3 .rain-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.8rem;
+    font-style: italic;
+    opacity: 0;
+    animation: fade-up 1.5s ease forwards;
+    background: linear-gradient(135deg, #a8edea, #fed6e3);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  #scene3 .rain-lines {
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    font-size: 1.15rem;
+    line-height: 2.2;
+    max-width: 600px;
+    color: rgba(255,255,255,.75);
+  }
+  #scene3 .rain-lines .line {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: line-appear 1s ease forwards;
+  }
+
+  /* ── SCENE 4 — THE PROMISE ── */
+  #scene4 .promise-wrap {
+    position: relative; z-index: 2;
+    text-align: center;
+    display: flex; flex-direction: column; align-items: center; gap: 40px;
+  }
+  #scene4 .infinity {
+    font-size: 6rem;
+    animation: spin-slow 8s linear infinite;
+    filter: drop-shadow(0 0 30px rgba(160,200,255,.5));
+  }
+  @keyframes spin-slow { 0% { transform: rotate(0); } 100% { transform: rotate(360deg); } }
+  #scene4 .promise-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.4rem;
+    font-weight: 700;
+    max-width: 650px;
+    line-height: 1.6;
+    opacity: 0;
+    animation: fade-up 2s ease forwards;
+    animation-delay: .5s;
+  }
+  #scene4 .promise-text span {
+    background: linear-gradient(90deg, #a18cd1, #fbc2eb, #a18cd1);
+    background-size: 200% auto;
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradient-shift 4s linear infinite;
+  }
+
+  /* ── SCENE 5 — FINALE ── */
+  #scene5 .finale-wrap {
+    position: relative; z-index: 2;
+    text-align: center;
+    display: flex; flex-direction: column; align-items: center; gap: 30px;
+  }
+  #scene5 .big-heart {
+    font-size: 10rem;
+    animation: heartbeat 1.2s ease-in-out infinite;
+    filter: drop-shadow(0 0 60px rgba(255,100,130,.6));
+  }
+  @keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    15% { transform: scale(1.15); }
+    30% { transform: scale(1); }
+    45% { transform: scale(1.1); }
+    60% { transform: scale(1); }
+  }
+  #scene5 .final-msg {
+    font-family: 'Great Vibes', cursive;
+    font-size: 4rem;
+    background: linear-gradient(135deg, #f5c6ec, #fbc2eb, #e0c3fc, #8ec5fc);
+    background-size: 300% 300%;
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: aurora 6s ease-in-out infinite;
+    filter: drop-shadow(0 0 25px rgba(200,160,255,.4));
+  }
+  @keyframes aurora {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  #scene5 .sub-msg {
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    font-size: 1.1rem;
+    color: rgba(255,255,255,.5);
+    opacity: 0;
+    animation: fade-up 2s ease forwards;
+    animation-delay: 1.5s;
+  }
+
+  /* ── FLOATING HEARTS ── */
+  .floating-heart {
+    position: fixed;
+    z-index: 3;
+    font-size: 1.4rem;
+    opacity: 0;
+    pointer-events: none;
+    animation: float-up 4s ease-out forwards;
+  }
+  @keyframes float-up {
+    0% { opacity: 0; transform: translateY(0) scale(.5) rotate(0deg); }
+    15% { opacity: .8; }
+    85% { opacity: .6; }
+    100% { opacity: 0; transform: translateY(-100vh) scale(1.2) rotate(20deg); }
+  }
+
+  /* ── SHARED ── */
+  @keyframes fade-up {
+    0% { opacity: 0; transform: translateY(30px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── PROGRESS BAR ── */
+  #progress {
+    position: fixed; bottom: 0; left: 0; height: 3px; z-index: 10;
+    background: linear-gradient(90deg, #a18cd1, #fbc2eb);
+    width: 0%;
+    transition: width .5s ease;
+  }
+
+  /* ── SKIP HINT ── */
+  #skip-hint {
+    position: fixed; bottom: 24px; right: 30px; z-index: 10;
+    font-size: .75rem;
+    color: rgba(255,255,255,.25);
+    font-family: 'Inter', sans-serif;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* ── RAIN DROPS ── */
+  .raindrop {
+    position: fixed; top: -10px; z-index: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, transparent, rgba(150,200,255,.4));
+    border-radius: 0 0 2px 2px;
+    animation: rain-fall linear forwards;
+    pointer-events: none;
+  }
+  @keyframes rain-fall {
+    0% { transform: translateY(-10px); opacity: .7; }
+    100% { transform: translateY(110vh); opacity: 0; }
+  }
+
+  /* ── STARS ── */
+  .star {
+    position: fixed; z-index: 0;
+    width: 3px; height: 3px;
+    background: #fff;
+    border-radius: 50%;
+    animation: twinkle 2s ease-in-out infinite;
+    pointer-events: none;
+  }
+  @keyframes twinkle {
+    0%, 100% { opacity: .2; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.5); }
+  }
+
+  /* ── MEME SCENES ── */
+  .meme-scene-wrap {
+    position: relative; z-index: 2;
+    display: flex; flex-direction: column; align-items: center; gap: 20px;
+    max-width: 90vw;
+  }
+  .meme-carousel {
+    display: flex; gap: 30px; align-items: center; justify-content: center;
+    flex-wrap: wrap;
+  }
+  .meme-card {
+    width: 320px;
+    border-radius: 16px;
+    overflow: hidden;
+    background: rgba(255,255,255,.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,.1);
+    box-shadow: 0 8px 32px rgba(0,0,0,.4), 0 0 60px rgba(180,140,255,.1);
+    opacity: 0;
+    transform: scale(.7) rotate(-3deg);
+    animation: meme-pop .8s ease forwards;
+  }
+  .meme-card:nth-child(2) { animation-delay: .4s; transform: scale(.7) rotate(2deg); }
+  .meme-card:nth-child(3) { animation-delay: .8s; transform: scale(.7) rotate(-1deg); }
+  @keyframes meme-pop {
+    0% { opacity: 0; transform: scale(.7) rotate(-3deg); }
+    60% { transform: scale(1.05) rotate(1deg); }
+    100% { opacity: 1; transform: scale(1) rotate(0deg); }
+  }
+  .meme-card img {
+    width: 100%; height: auto; display: block;
+  }
+  .meme-card .meme-caption {
+    padding: 12px 16px;
+    font-family: 'Inter', sans-serif;
+    font-size: .85rem;
+    color: rgba(255,255,255,.7);
+    text-align: center;
+    font-style: italic;
+  }
+  .meme-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    text-align: center;
+    opacity: 0;
+    animation: fade-up 1s ease forwards;
+    background: linear-gradient(90deg, #ffd89b, #ff6b6b);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Single meme — bigger */
+  .meme-single {
+    position: relative; z-index: 2;
+    display: flex; flex-direction: column; align-items: center; gap: 25px;
+  }
+  .meme-single .meme-card {
+    width: 420px;
+  }
+  .meme-single .meme-card img {
+    width: 100%;
+  }
+</style>
+</head>
+<body>
+
+<canvas id="particles"></canvas>
+
+<!-- SCENE 1 — INTRO -->
+<div class="scene active" id="scene1">
+  <div class="vignette"></div>
+  <div class="glow-ring">
+    <div class="intro-text">Lo siento, tíos</div>
+  </div>
+</div>
+
+<!-- SCENE 2 — BROKEN HEART -->
+<div class="scene" id="scene2">
+  <div class="shatter-container">
+    <div class="heart-broken">🍽️😭</div>
+    <div class="msg"><span>Sé que había comida increíble...<br>y me la perdí como un campeón.</span></div>
+  </div>
+</div>
+
+<!-- SCENE 3 — MEMES 😂 -->
+<div class="scene" id="scene3">
+  <div class="meme-scene-wrap">
+    <div class="meme-title">Mientras tanto, yo... 😭😂</div>
+    <div class="meme-carousel">
+      <div class="meme-card">
+        <img src="meme1.png" alt="Meme cereales">
+        <div class="meme-caption">Mi realidad sin vuestra comida</div>
+      </div>
+      <div class="meme-card">
+        <img src="meme2.png" alt="Meme silla vacía">
+        <div class="meme-caption">Mi sitio en la mesa... vacío</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCENE 4 — RAIN / REFLECTION -->
+<div class="scene" id="scene4">
+  <div class="rain-text-wrap">
+    <div class="rain-title">Mientras vosotros comíais...<br>yo estaba aquí sintiéndome fatal</div>
+    <div class="rain-lines">
+      <div class="line" style="animation-delay:.5s">No debí faltar.</div>
+      <div class="line" style="animation-delay:1.2s">Me perdí la comida de la tía... imperdonable.</div>
+      <div class="line" style="animation-delay:1.9s">Seguro que sobró de todo menos sitio para mí.</div>
+      <div class="line" style="animation-delay:2.6s">La familia es lo primero y lo olvidé.</div>
+      <div class="line" style="animation-delay:3.3s">No volverá a pasar. Lo prometo.</div>
+    </div>
+  </div>
+</div>
+
+<!-- SCENE 5 — THE PROMISE -->
+<div class="scene" id="scene5">
+  <div class="promise-wrap">
+    <div class="infinity">🤝</div>
+    <div class="promise-text">
+      <span>Os prometo que a la próxima...<br>
+      seré el primero en sentarme a la mesa.<br>
+      Con babero puesto si hace falta.<br>
+      Repetiré DOS veces.</span>
+    </div>
+  </div>
+</div>
+
+<!-- SCENE 6 — MEME TAPER 😂 -->
+<div class="scene" id="scene6">
+  <div class="meme-single">
+    <div class="meme-title">Pero al menos... 🙏</div>
+    <div class="meme-card">
+      <img src="meme3.png" alt="Meme táper">
+      <div class="meme-caption">¿Verdad que me habéis guardado táper? ¿VERDAD?</div>
+    </div>
+  </div>
+</div>
+
+<!-- SCENE 7 — FINALE -->
+<div class="scene" id="scene7">
+  <div class="finale-wrap">
+    <div class="big-heart">👨‍👩‍👦‍👦❤️</div>
+    <div class="final-msg">Os quiero, tíos</div>
+    <div class="sub-msg">— guardadme un táper la próxima vez, ¿vale? —</div>
+  </div>
+</div>
+
+<div id="progress"></div>
+<div id="skip-hint">CLICK O ESPACIO → SIGUIENTE</div>
+
+<script>
+/* ════════════════════════════════════════════
+   PARTICLE SYSTEM
+   ════════════════════════════════════════════ */
+const canvas = document.getElementById('particles');
+const ctx = canvas.getContext('2d');
+let W, H;
+
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+class Particle {
+  constructor() { this.reset(); }
+  reset() {
+    this.x = Math.random() * W;
+    this.y = Math.random() * H;
+    this.r = Math.random() * 2 + .5;
+    this.dx = (Math.random() - .5) * .4;
+    this.dy = (Math.random() - .5) * .4;
+    this.alpha = Math.random() * .5 + .1;
+    const hues = [260, 300, 340, 200];
+    this.hue = hues[Math.floor(Math.random() * hues.length)];
+  }
+  update() {
+    this.x += this.dx;
+    this.y += this.dy;
+    if (this.x < 0 || this.x > W || this.y < 0 || this.y > H) this.reset();
+  }
+  draw() {
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+    ctx.fillStyle = `hsla(${this.hue}, 80%, 75%, ${this.alpha})`;
+    ctx.fill();
+  }
+}
+
+const particles = Array.from({ length: 120 }, () => new Particle());
+
+function drawLines() {
+  for (let i = 0; i < particles.length; i++) {
+    for (let j = i + 1; j < particles.length; j++) {
+      const dx = particles[i].x - particles[j].x;
+      const dy = particles[i].y - particles[j].y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < 130) {
+        ctx.beginPath();
+        ctx.moveTo(particles[i].x, particles[i].y);
+        ctx.lineTo(particles[j].x, particles[j].y);
+        ctx.strokeStyle = `rgba(180,160,255,${.08 * (1 - dist / 130)})`;
+        ctx.lineWidth = .5;
+        ctx.stroke();
+      }
+    }
+  }
+}
+
+function animateParticles() {
+  ctx.clearRect(0, 0, W, H);
+  particles.forEach(p => { p.update(); p.draw(); });
+  drawLines();
+  requestAnimationFrame(animateParticles);
+}
+animateParticles();
+
+/* ════════════════════════════════════════════
+   SCENE MANAGER
+   ════════════════════════════════════════════ */
+const scenes = ['scene1', 'scene2', 'scene3', 'scene4', 'scene5', 'scene6', 'scene7'];
+let current = 0;
+let transitioning = false;
+
+const progress = document.getElementById('progress');
+
+function goTo(index) {
+  if (transitioning || index < 0 || index >= scenes.length) return;
+  transitioning = true;
+
+  document.getElementById(scenes[current]).classList.remove('active');
+  current = index;
+  document.getElementById(scenes[current]).classList.add('active');
+  progress.style.width = ((current + 1) / scenes.length * 100) + '%';
+
+  // Scene-specific effects
+  if (current === 3) startRain();
+  if (current === 6) startHeartBurst();
+  if (current === 4) spawnStars();
+
+  setTimeout(() => { transitioning = false; }, 2000);
+}
+
+function next() { goTo(current + 1); }
+
+// Click & keyboard
+document.addEventListener('click', next);
+document.addEventListener('keydown', e => {
+  if (e.code === 'Space' || e.code === 'ArrowRight') next();
+});
+
+// Auto-advance
+let autoTimer = setInterval(() => {
+  if (current < scenes.length - 1) next();
+  else clearInterval(autoTimer);
+}, 7000);
+
+/* ════════════════════════════════════════════
+   RAIN EFFECT (Scene 3)
+   ════════════════════════════════════════════ */
+function startRain() {
+  let count = 0;
+  const iv = setInterval(() => {
+    if (count++ > 80) { clearInterval(iv); return; }
+    const drop = document.createElement('div');
+    drop.className = 'raindrop';
+    drop.style.left = Math.random() * 100 + 'vw';
+    drop.style.height = Math.random() * 30 + 20 + 'px';
+    drop.style.animationDuration = Math.random() * 1 + 1 + 's';
+    document.body.appendChild(drop);
+    drop.addEventListener('animationend', () => drop.remove());
+  }, 60);
+}
+
+/* ════════════════════════════════════════════
+   FLOATING HEARTS
+   ════════════════════════════════════════════ */
+function startHeartBurst() {
+  const emojis = ['🍗', '🥘', '🍷', '❤️', '🫕', '🥧', '🍰', '👨‍👩‍👦', '✨'];
+  let count = 0;
+  const iv = setInterval(() => {
+    if (count++ > 40) { clearInterval(iv); return; }
+    const h = document.createElement('div');
+    h.className = 'floating-heart';
+    h.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    h.style.left = Math.random() * 100 + 'vw';
+    h.style.bottom = '-40px';
+    h.style.fontSize = (Math.random() * 1.5 + 1) + 'rem';
+    h.style.animationDuration = (Math.random() * 2 + 3) + 's';
+    document.body.appendChild(h);
+    h.addEventListener('animationend', () => h.remove());
+  }, 200);
+}
+
+/* ════════════════════════════════════════════
+   STARS (Scene 4)
+   ════════════════════════════════════════════ */
+function spawnStars() {
+  for (let i = 0; i < 50; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    s.style.left = Math.random() * 100 + 'vw';
+    s.style.top = Math.random() * 100 + 'vh';
+    s.style.animationDelay = Math.random() * 3 + 's';
+    s.style.animationDuration = (Math.random() * 2 + 1.5) + 's';
+    document.body.appendChild(s);
+    setTimeout(() => s.remove(), 15000);
+  }
+}
+
+/* ════════════════════════════════════════════
+   MOUSE TRAIL
+   ════════════════════════════════════════════ */
+document.addEventListener('mousemove', e => {
+  if (Math.random() > .7) return;
+  const spark = document.createElement('div');
+  spark.style.cssText = `
+    position:fixed; left:${e.clientX}px; top:${e.clientY}px;
+    width:4px; height:4px; border-radius:50%; z-index:5;
+    background: hsl(${Math.random()*60 + 270}, 80%, 75%);
+    pointer-events:none;
+    animation: spark-fade .8s ease forwards;
+  `;
+  document.body.appendChild(spark);
+  spark.addEventListener('animationend', () => spark.remove());
+});
+
+// Inject spark keyframes
+const sStyle = document.createElement('style');
+sStyle.textContent = `
+  @keyframes spark-fade {
+    0% { opacity:1; transform: scale(1) translate(0,0); }
+    100% { opacity:0; transform: scale(0) translate(${Math.random()*20-10}px, ${Math.random()*20-10}px); }
+  }
+`;
+document.head.appendChild(sStyle);
+
+/* Init progress */
+progress.style.width = (1 / scenes.length * 100) + '%';
+
+/* ════════════════════════════════════════════
+   🎵 AUDIO ENGINE (Grabación de pantalla MP4)
+   ════════════════════════════════════════════ */
+let audio = null;
+let audioStarted = false;
+
+function initAudio() {
+  if (audioStarted) return;
+  audioStarted = true;
+
+  audio = new Audio("Grabación de pantalla 2026-05-17 152734.mp4");
+  audio.loop = true;
+  audio.volume = 0.6;
+  
+  audio.play().then(() => {
+    console.log("Música iniciada con éxito");
+  }).catch(e => {
+    console.error("Error al reproducir audio:", e);
+    audioStarted = false;
+  });
+}
+
+// Iniciar audio con el primer clic o pulsación de tecla
+document.addEventListener('click', initAudio);
+document.addEventListener('keydown', initAudio);
+
+// Control de volumen por escenas
+const originalGoTo = goTo;
+goTo = function(index) {
+  originalGoTo(index);
+  if (audio) {
+    const vols = [0.6, 0.45, 0.4, 0.5, 0.6, 0.5, 0.85];
+    let targetVol = vols[index] || 0.6;
+    let step = (targetVol - audio.volume) / 20;
+    let count = 0;
+    let fadeInterval = setInterval(() => {
+      audio.volume = Math.max(0, Math.min(1, audio.volume + step));
+      count++;
+      if (count >= 20) {
+        clearInterval(fadeInterval);
+        audio.volume = targetVol;
+      }
+    }, 50);
+  }
+};
+  </script>
+
+</body>
+</html>
